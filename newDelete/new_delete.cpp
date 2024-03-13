@@ -63,7 +63,7 @@ T* dynArr(size_t size)
 }
 
 
-void dyn_arr_del(void* ptr, size_t size)
+void dyn_arr_del(void* ptr)
 {
 	if ( ptr )
 		free(ptr);
@@ -71,8 +71,8 @@ void dyn_arr_del(void* ptr, size_t size)
 
 
 template <typename T>
-void dynArrDel(T* ptr, size_t size)
+void dynArrDel(T* ptr)
 {
 	void* p = static_cast<void*>(ptr);
-	dyn_arr_del(p, size);
+	dyn_arr_del(p);
 }
