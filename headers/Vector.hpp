@@ -1,5 +1,5 @@
-#ifndef __ABRACADABRA__1_2
-#define __ABRACADABRA__1_2
+#ifndef __VECTOR_HEADER__
+#define __VECTOR_HEADER__
 
 #include <initializer_list>
 
