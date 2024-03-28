@@ -1,5 +1,5 @@
-#ifndef __ABRACADABRA__1_2
-#define __ABRACADABRA__1_2
+#ifndef __VECTOR_HEADER__
+#define __VECTOR_HEADER__
 
 #include <initializer_list>
 
@@ -11,10 +11,6 @@ class vector
 		size_t cap;
 		T* arr;
 
-// U grel mov constructor-@
-// AMENAKAREVORNERIC MEK@ -> grel mi hat FULL
-// constructor u mnacacum kanchel et, hamapatasxan
-// parametrerov
 	public:
 		using value_type = T;
 		using reference = T&;
