@@ -3,6 +3,10 @@
 
 #include "Vector.hpp"
 #include <initializer_list>
+#include <iostream>
+
+using std::cout;
+using std::endl;
 
 // Default constructor
 
@@ -59,21 +63,16 @@ vector<T>::vector(std::initializer_list<value_type> l)
 // Copy constructor
 
 template <typename T>
-vector<T>::vector(const const_self_referenceT rhv)
+vector<T>::vector(self_referenceL rhv)
 {
-	if ( this != &rhv )
+	this->len = rhv.size();
+	this->cap = rhv.capacity();
+
+	arr = new value_type [cap];
+
+	for (int i = 0; i < this->len; ++i)
 	{
-		this->len = rhv.len;
-		this->cap = rhv.cap;
-
-		delete [] this->arr;
-		arr = nullptr;
-		arr = new value_type [cap];
-
-		for (int i = 0; i < this->len; ++i)
-		{
-			this->arr[i] = rhv.arr[i];
-		}
+		this->arr[i] = rhv[i];
 	}
 }
 
@@ -81,16 +80,12 @@ vector<T>::vector(const const_self_referenceT rhv)
 // Move constructor
 
 template <typename T>
-vector<T>::vector(const const_self_referenceTT rhv)
-{
-	if ( this != &rhv )
-	{
-		this->len = rhv.len;
-		this->cap = rhv.cap;
-		this->arr = rhv.arr;
-		
-		rhv.arr = nullptr;
-	}
+vector<T>::vector(self_referenceR rhv)	
+	: len{rhv.len}
+	, cap{rhv.cap}
+	, arr{rhv.arr}
+{		
+	rhv.arr = nullptr;
 }
 
 
@@ -106,22 +101,22 @@ vector<T>::~vector()
 // Copy assignment ( Deep copy )
 
 template <typename T>
-const vector<T>& vector<T>::operator=(const_self_referenceT ob)
+const vector<T>& vector<T>::operator=(const_self_reference rhv)
 {
-    if ( this != &ob )
+    if ( this != &rhv )
     {
 		if ( arr )
         {
-			vector<value_type>::clear();
-            arr = new value_type [this->cap];
+			this->clear();
         }
+        arr = new value_type [this->cap];
 
-        this->len = ob.len;
-        this->cap = ob.cap;
+        this->len = rhv.len;
+        this->cap = rhv.cap;
 
         for (int i = 0; i < this->len; ++i)
         {
-            this->arr[i] = ob.arr[i];
+            this->arr[i] = rhv.arr[i];
         }
 	} 
 
@@ -136,11 +131,11 @@ const vector<T>& vector<T>::operator=(self_referenceR rhv)
 {
 	if ( this != &rhv )
 	{
-		this->len = rhv.size();
-		this->cap = rhv.capacity();
-		this->arr = rhv.data();
+		this->len = rhv.len;
+		this->cap = rhv.cap;
+		this->arr = rhv.arr;
 
-		rhv.clear();
+		rhv.arr;
 	}
 
 	return *this;
@@ -150,7 +145,16 @@ const vector<T>& vector<T>::operator=(self_referenceR rhv)
 // Subscript operator
 
 template <typename T>
-T& vector<T>::operator[](const size_type index)
+T& vector<T>::operator[](size_type index)
+{
+	return arr[index];
+}
+
+
+// Const subscript operator
+
+template <typename T>
+T& vector<T>::operator[](size_type index) const
 {
 	return arr[index];
 }
@@ -302,10 +306,20 @@ void vector<T>::remove(size_type index)
 template <typename T>
 void vector<T>::push_back(const_value_type val)
 {
-	this->len++;
-	if ( this->len >= this->cap )
-		vector<value_type>::recap();
-	this->arr[len - 1] = val;
+	if ( !arr )
+	{
+		this->cap = 5;
+		this->len = 1;
+		arr = new value_type [cap];
+		arr[0] = val;
+	}
+	else
+	{
+		this->len++;
+		if ( this->len >= this->cap )
+			vector<value_type>::recap();
+		this->arr[len - 1] = val;
+	}
 }
 
 
@@ -314,7 +328,7 @@ void vector<T>::push_back(const_value_type val)
 template <typename T>
 void vector<T>::pop_back()
 {
-	if ( this->len - 1 )
+	if ( !this->empty() )
 	{
 		this->len--;
 	}
@@ -368,7 +382,7 @@ void vector<T>::clear()
 template <typename T>
 bool vector<T>::empty()
 {
-	return this->len;
+	return !this->len;
 }
 
 
@@ -388,5 +402,152 @@ size_t vector<T>::capacity()
 {
 	return this->cap;
 }
+
+
+// Arithmetic operators <=> object with object
+
+template <typename T>
+const vector<T>
+vector<T>::operator+(const_self_reference other)
+{
+	size_t size = (other.len > this->len) ? other.len : this->len;
+	vector<value_type> ob(size);
+
+	for ( int i = 0; i < size; ++i )
+	{
+		ob[i] = arr[i] + other[i];
+	}
+
+	return ob;
+}
+
+template <typename T>
+const vector<T>
+vector<T>::operator-(const_self_reference other)
+{
+	size_t size = (other.len > this->len) ? other.len : this->len;
+	vector<value_type> ob(size);
+
+	for ( int i = 0; i < size; ++i )
+	{
+		ob[i] = arr[i] - other[i];
+	}
+
+	return ob;
+}
+
+template <typename T>
+const vector<T>
+vector<T>::operator*(const_self_reference other)
+{
+	size_t size = (other.len > this->len) ? other.len : this->len;
+	vector<value_type> ob(size);
+
+	for ( int i = 0; i < size; ++i )
+	{
+		ob[i] = arr[i] * other[i];
+	}
+
+	return ob;
+}
+
+template <typename T>
+const vector<T>
+vector<T>::operator/(const_self_reference other)
+{
+	size_t size = (other.len > this->len) ? other.len : this->len;
+	vector<value_type> ob(size);
+
+	for ( int i = 0; i < size; ++i )
+	{
+		ob[i] = arr[i] / other[i];
+	}
+
+	return ob;
+}
+
+template <typename T>
+const vector<T>
+vector<T>::operator%(const_self_reference other)
+{
+	size_t size = (other.len > this->len) ? other.len : this->len;
+	vector<value_type> ob(size);
+
+	for ( int i = 0; i < size; ++i )
+	{
+		ob[i] = arr[i] % other[i];
+	}
+
+	return ob;
+}
+
+
+// Arithmetic operators <=> object with T
+
+template <typename T>
+const vector<T> operator+(T val1, vector<T>& val2)
+{
+	size_t size = val2.size();
+	vector<T> tmp(size);
+	for ( int i = 0; i < size; ++i )
+	{
+		tmp[i] = val2[i] + val1;
+	}
+
+	return tmp;
+}
+
+template <typename T>
+const vector<T> operator-(T val1, vector<T>& val2)
+{
+	size_t size = val2.size();
+	vector<T> tmp(size);
+	for ( int i = 0; i < size; ++i )
+	{
+		tmp[i] = val2[i] - val1;
+	}
+
+	return tmp;
+}
+
+template <typename T>
+const vector<T> operator*(T val1, vector<T>& val2)
+{
+	size_t size = val2.size();
+	vector<T> tmp(size);
+	for ( int i = 0; i < size; ++i )
+	{
+		tmp[i] = val2[i] * val1;
+	}
+
+	return tmp;
+}
+
+template <typename T>
+const vector<T> operator/(T val1, vector<T>& val2)
+{
+	size_t size = val2.size();
+	vector<T> tmp(size);
+	for ( int i = 0; i < size; ++i )
+	{
+		tmp[i] = val2[i] / val1;
+	}
+
+	return tmp;
+}
+
+template <typename T>
+const vector<T> operator%(T val1, vector<T>& val2)
+{
+	size_t size = val2.size();
+	vector<T> tmp(size);
+	for ( int i = 0; i < size; ++i )
+	{
+		tmp[i] = val2[i] % val1;
+	}
+
+	return tmp;
+}
+
 
 #endif
