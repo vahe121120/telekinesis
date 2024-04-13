@@ -3,10 +3,7 @@
 
 #include "Vector.hpp"
 #include <initializer_list>
-#include <iostream>
 
-using std::cout;
-using std::endl;
 
 // Default constructor
 
@@ -47,10 +44,10 @@ vector<T>::vector(size_type s, const_value_type val)
 
 template <typename T>
 vector<T>::vector(std::initializer_list<value_type> l)
-{
-	this->len = l.size();
-	this->arr = new value_type [this->len];
 
+	: len{ l.size() }
+	, arr{ new value_type [this->len] }
+{
 	int i{};
 	for ( auto value : l )
 	{
@@ -64,12 +61,10 @@ vector<T>::vector(std::initializer_list<value_type> l)
 
 template <typename T>
 vector<T>::vector(self_referenceL rhv)
+	: len{ rhv.size() }
+	, cap{ rhv.capacity() }
+	, arr{ new value_type [cap] }
 {
-	this->len = rhv.size();
-	this->cap = rhv.capacity();
-
-	arr = new value_type [cap];
-
 	for (int i = 0; i < this->len; ++i)
 	{
 		this->arr[i] = rhv[i];
@@ -94,7 +89,7 @@ vector<T>::vector(self_referenceR rhv)
 template <typename T>
 vector<T>::~vector()
 {
-	vector<value_type>::clear();
+	this->clear();
 }
 
 
