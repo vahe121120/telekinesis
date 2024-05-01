@@ -55,14 +55,6 @@ class vector
 		bool empty();
 		size_type size();
 		size_type capacity();
-
-	public:
-		// Arithmetic operators overloading
-		const vector<T> operator+(const_self_reference other);
-		const vector<T> operator-(const_self_reference other);
-		const vector<T> operator*(const_self_reference other);
-		const vector<T> operator/(const_self_reference other);
-		const vector<T> operator%(const_self_reference other);
 };
 
 
