@@ -45,9 +45,9 @@ vector<T>::vector(size_type s, value_type val)
 
 template <typename T>
 vector<T>::vector(std::initializer_list<value_type> l)
-
 	: len{ l.size() }
-	, arr{ new value_type [this->len] }
+	, cap{std::move(l.size())}
+	, arr{ new value_type [this->cap] }
 {
 	int i{};
 	for ( auto value : l )
@@ -79,7 +79,7 @@ template <typename T>
 vector<T>::vector(self_referenceR rhv)	
 	: len{rhv.len}
 	, cap{rhv.cap}
-	, arr{rhv.arr}
+	, arr{std::move(rhv.arr)}
 {		
 	rhv.arr = nullptr;
 }
@@ -107,8 +107,8 @@ const vector<T>& vector<T>::operator=(const_self_reference rhv)
         }
         arr = new value_type [this->cap];
 
-        this->len = rhv.len;
-        this->cap = rhv.cap;
+        this->len = std::move(rhv.len);
+        this->cap = std::move(rhv.cap);
 
         for (int i = 0; i < this->len; ++i)
         {
@@ -127,11 +127,11 @@ const vector<T>& vector<T>::operator=(self_referenceR rhv)
 {
 	if ( this != &rhv )
 	{
-		this->len = rhv.len;
-		this->cap = rhv.cap;
-		this->arr = rhv.arr;
+		this->len = std::move(rhv.len);
+		this->cap = std::move(rhv.cap);
+		this->arr = std::move(rhv.arr);
 
-		rhv.arr;
+		rhv.arr = nullptr;
 	}
 
 	return *this;
@@ -202,22 +202,34 @@ void vector<T>::resize(size_type s, value_type val)
 		}
 		else
 		{
-			vector<T>::recap();
-			value_type* ptr = new value_type [this->cap];
+			this->reserve(s);
+			pointer ptr = new value_type [s];
 
 			for (int i = 0; i < this->len; ++i)
 			{
 				ptr[i] = this->arr[i];
 			}
 
-			this->arr = ptr;
-			delete [] ptr;
+			delete [] arr;
+			arr = ptr;
+			ptr = nullptr;
+
+			for ( int i = len; i < s; ++i )
+			{
+				arr[i] = val;
+			}
+			
 			this->len = s;
+			this->cap = len;
 		}
 	}
 	else
 	{
 		this->len = s;
+		for ( int i = 0; i < len; ++i )
+		{
+			arr[i] = val;
+		}
 	}
 }
 
@@ -227,8 +239,18 @@ void vector<T>::resize(size_type s, value_type val)
 template <typename T>
 T& vector<T>::front()
 {
-	if ( this->len )
-		return arr[0];
+	if ( !this->empty() )
+		return arr;
+	throw;
+}
+
+template <typename T>
+const T& vector<T>::front() const
+{
+	if ( !this->empty() )
+	{
+		return arr;
+	}
 	throw;
 }
 
@@ -238,51 +260,27 @@ T& vector<T>::front()
 template <typename T>
 T& vector<T>::back()
 {
-	if ( this->len )
+	if ( !this->empty() )
 		return arr[len - 1];
 	throw;
 }
 
+template <typename T>
+const T& vector<T>::back() const
+{
+	if ( !this->empty() )
+		return arr[len - 1];
+	throw;
+}
 
-// insert method
-
-// template <typename T>
-// const T& vector<T>::insert(size_type index, value_type val)
-// {
-// 	if ( index >= this->len )
-// 		throw;
-
-// 	this->len++;
-
-// 	if ( this->len >= this->cap )
-// 		vector<value_type>::recap();
-
-// 	pointer ptr = new value_type [this->len];
-
-
-// 	for (int i = 0, j = 0; i < this->len; ++i, ++j)
-// 	{
-// 		if ( i == index )
-// 		{
-// 			ptr[i] = val;
-// 			--j;
-// 			continue;
-// 		}
-
-// 		ptr[i] = arr[j];
-// 	}
-
-// 	delete [] arr;
-// 	arr = ptr;
-// 	delete [] ptr;
-// }
 
 template <typename T>
 typename vector<T>::iterator
 vector<T>::insert(const_iterator pos, const_reference val)
 {
 	// calculating offset
-	size_t index = pos.ptr - arr;
+	size_type index = pos.ptr - arr;
+	if ( index > len + 1 ) throw;
 
 	++len;
 	++cap;
@@ -300,7 +298,8 @@ template <typename T>
 typename vector<T>::iterator
 vector<T>::insert(const_iterator pos, size_type count, const_reference val)
 {
-	size_t index = pos.ptr - arr;
+	size_type index = pos.ptr - arr;
+	if ( index > len + 1 ) throw;
 
 	len += count;
 	cap += count;
@@ -322,7 +321,8 @@ template <typename T>
 typename vector<T>::iterator
 vector<T>::insert(const_iterator pos, std::initializer_list<value_type> init)
 {
-	size_t index = pos.ptr - arr;
+	size_type index = pos.ptr - arr;
+	if ( index > len + 1 ) throw;
 	int count = init.size();
 
 	for ( int i = len; i >= index; --i )
@@ -343,31 +343,67 @@ vector<T>::insert(const_iterator pos, std::initializer_list<value_type> init)
 	return begin() + index;
 }
 
-
-// erase method
-
 template <typename T>
-void vector<T>::erase(size_type index)
+template <typename InputIt>
+typename vector<T>::iterator
+vector<T>::insert(const_iterator pos, InputIt first, InputIt last)
 {
-	if ( index >= this->len ) throw;
+	size_type index = pos.ptr - arr;
+	if ( index > len ) throw;
+	size_type count = last - first;
 
-	value_type* ptr = new value_type [this->len - 1];
+	if ( len + count > cap )
+	{
+		resize(len + count);
+	}
+	
 
-	for (int i = 0, j = 0; i < this->len; ++i, ++j)
-	{	
-		if ( j == index )
-		{
-			--i;
-			continue;
-		}
-		ptr[i] = arr[j];
+	for ( int i = count + len - 1; i >= index + count; --i )
+	{
+		arr[i] = arr[i - count];
 	}
 
-	this->len--;
+	int i = index;
+	for ( InputIt it = first; it != last; ++it, ++i )
+	{
+		arr[i] = *it;
+	}
 
-	delete [] arr;
-	arr = ptr;
-	delete [] ptr;
+	return begin() + index;
+}
+
+template <typename T>
+typename vector<T>::iterator
+vector<T>::erase(const_iterator pos)
+{
+	size_t index = pos.ptr - arr;
+
+	for ( int i = index; i < len; ++i )
+	{
+		arr[i] = arr[i + 1];
+	}
+
+	--len;
+
+	return begin() + index;
+}
+
+template <typename T>
+typename vector<T>::iterator
+vector<T>::erase(const_iterator first, const_iterator last)
+{
+	size_type f_index = first.ptr - arr;
+	size_type l_index = last.ptr - arr;
+	size_type count = last - first;
+
+	for ( int i = f_index; i <= l_index; ++i )
+	{
+		arr[i] = arr[i + count];
+	}
+
+	len -= count;
+
+	return begin() + f_index;
 }
 
 
@@ -387,7 +423,7 @@ void vector<T>::push_back(value_type val)
 	{
 		this->len++;
 		if ( this->len >= this->cap )
-			vector<value_type>::recap();
+			vector<value_type>::reserve(len * 2);
 		this->arr[len - 1] = val;
 	}
 }
@@ -414,15 +450,12 @@ T* vector<T>::data()
 }
 
 
-// recap method
+// reserve method
 
 template <typename T>
-void vector<T>::recap()
+void vector<T>::reserve(size_type new_cap)
 {
-	while ( this->cap < this->len )
-	{
-		this->cap *= 2;
-	}
+	cap = new_cap;
 }
 
 
@@ -439,7 +472,7 @@ void vector<T>::clear() noexcept
 		}
 
 		delete [] arr;
-		arr = nullptr;
+		this->arr = nullptr;
 
 		this->len = 0;
 		this->cap = 0;
@@ -450,7 +483,7 @@ void vector<T>::clear() noexcept
 // empty method
 
 template <typename T>
-bool vector<T>::empty()
+bool vector<T>::empty() const
 {
 	return !this->len;
 }
@@ -459,7 +492,7 @@ bool vector<T>::empty()
 // size method
 
 template <typename T>
-size_t vector<T>::size()
+size_t vector<T>::size() const
 {
 	return this->len;
 }
@@ -468,7 +501,7 @@ size_t vector<T>::size()
 // capacity method
 
 template <typename T>
-size_t vector<T>::capacity()
+size_t vector<T>::capacity() const
 {
 	return this->cap;
 }
@@ -558,6 +591,14 @@ vector<T>::rend() const
 	return vector<T>::reverse_iterator(arr - 1);
 }
 
+template <typename T>
+int vector<T>::compare(const_self_reference other)
+{
+	if ( len > other.len ) return 1;
+	if ( len < other.len ) return -1;
+	return 0;
+}
+
 
 
 // --------------------------------------------------
@@ -585,7 +626,7 @@ vector<T>::const_iterator::const_iterator(const_iterator&& rhv)
 }
 
 template <typename T>
-typename vector<T>::const_iterator&
+const typename vector<T>::const_iterator&
 vector<T>::const_iterator::operator=(const const_iterator& rhv)
 {
 	if ( this != &rhv )
@@ -596,7 +637,7 @@ vector<T>::const_iterator::operator=(const const_iterator& rhv)
 }
 
 template <typename T>
-typename vector<T>::const_iterator&
+const typename vector<T>::const_iterator&
 vector<T>::const_iterator::operator=(const_iterator&& rhv)
 {
 	if ( this != &rhv )
@@ -606,13 +647,6 @@ vector<T>::const_iterator::operator=(const_iterator&& rhv)
 	}
 	return *this;
 }
-
-// template <typename T>
-// typename vector<T>::const_reference
-// vector<T>::const_iterator::operator[](size_t index)
-// {
-// 	return *(ptr + index);
-// }
 
 template <typename T>
 typename vector<T>::const_reference
@@ -671,6 +705,13 @@ typename vector<T>::const_iterator
 vector<T>::const_iterator::operator-(int ind) const
 {
 	return const_iterator(ptr - ind);
+}
+
+template <typename T>
+int
+vector<T>::const_iterator::operator-(const const_iterator& other) const
+{
+	return (ptr - other.ptr);
 }
 
 template <typename T>
@@ -743,7 +784,7 @@ vector<T>::iterator::iterator(T* ptr)
 {}
 
 template <typename T>
-vector<T>::iterator::iterator(iterator& rhv)
+vector<T>::iterator::iterator(const iterator& rhv)
 	: ptr{rhv.ptr}
 {}
 
@@ -756,7 +797,7 @@ vector<T>::iterator::iterator(iterator&& rhv)
 
 template <typename T>
 typename vector<T>::iterator&
-vector<T>::iterator::operator=(iterator& rhv)
+vector<T>::iterator::operator=(const iterator& rhv)
 {
 	if ( this != &rhv )
 	{
@@ -841,6 +882,13 @@ typename vector<T>::iterator
 vector<T>::iterator::operator-(int ind)
 {
 	return iterator(ptr - ind);
+}
+
+template <typename T>
+int
+vector<T>::iterator::operator-(const iterator& other)
+{
+	return ptr - other.ptr;
 }
 
 template <typename T>
@@ -952,13 +1000,6 @@ vector<T>::const_reverse_iterator::operator=(const_reverse_iterator&& rhv)
 
 	return *this;
 }
-
-// template <typename T>
-// typename vector<T>::const_reference
-// vector<T>::const_reverse_iterator::operator[](size_t index)
-// {
-// 	return vector<T>::const_reverse_iterator(ptr - index);
-// }
 
 template <typename T>
 typename vector<T>::const_reference

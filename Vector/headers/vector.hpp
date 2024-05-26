@@ -47,25 +47,35 @@ class vector
 		void resize(size_type s);
 		void resize(size_type s, value_type val);
 		reference front();
+		const_reference front() const;
 	
 	public:
 		reference back();
+		const_reference back() const;
 		iterator insert(const_iterator pos, const_reference val);
 		iterator insert(const_iterator pos, size_type count, const_reference val);
 		iterator insert(const_iterator pos, std::initializer_list<value_type> init);
+		template <typename InputIt>
+		iterator insert(const_iterator pos, InputIt first, InputIt last);
 
+	public:
+		// void erase(size_type index);
 
-		void erase(size_type index);
+		iterator erase(const_iterator pos);
+		iterator erase(const_iterator first, const_iterator last);
+
+		// 1, 2, 3, 4, 5		-> erase(1, 3)	-> size=5	-> 1, 5
+
 		void push_back(value_type val);
 		void pop_back();
 		pointer data();
 
 	public:
-		void recap();
+		void reserve(size_type new_cap);
 		void clear() noexcept;
-		bool empty();
-		size_type size();
-		size_type capacity();
+		bool empty() const;
+		size_type size() const;
+		size_type capacity() const;
 
 	public:
 		const_iterator cbegin() const;
@@ -86,6 +96,9 @@ class vector
 		reverse_iterator rbegin() const;
 		reverse_iterator rend();
 		reverse_iterator rend() const;
+
+	private:
+		int compare(const_self_reference other);
 };
 
 template <typename T>
@@ -101,9 +114,8 @@ class vector<T>::const_iterator
 		const_iterator(const const_iterator& rhv);
 		const_iterator(const_iterator&& rhv);
 	public:
-		const_iterator& operator=(const const_iterator& rhv);
-		const_iterator& operator=(const_iterator&& rhv);
-		// const_reference operator[](size_t index);
+		const const_iterator& operator=(const const_iterator& rhv);
+		const const_iterator& operator=(const_iterator&& rhv);
 		const_reference operator[](size_t index) const;
 	public:
 		// pre-fix
@@ -114,6 +126,7 @@ class vector<T>::const_iterator
 		const_iterator operator--(int);
 		const_iterator operator+(int ind) const;
 		const_iterator operator-(int ind) const;
+		int operator-(const const_iterator& other) const;
 		const_reference operator*();
 		const_pointer operator->();
 	public:
@@ -134,11 +147,11 @@ class vector<T>::iterator : public const_iterator
 	public:
 		iterator();
 		iterator(T* ptr);
-		iterator(iterator& rhv);
+		iterator(const iterator& rhv);
 		iterator(iterator&& rhv);
 
 	public:
-		iterator& operator=(iterator& rhv);
+		iterator& operator=(const iterator& rhv);
 		iterator& operator=(iterator&& rhv);
 		reference operator[](size_t index);
 		reference operator[](size_t index) const;
@@ -150,6 +163,7 @@ class vector<T>::iterator : public const_iterator
 		iterator operator--(int);
 		iterator operator+(int ind);
 		iterator operator-(int ind);
+		int operator-(const iterator& other);
 		reference operator*();
 		pointer operator->();
 
