@@ -15,7 +15,7 @@ class queue
         using reference = value_type&;
         using pointer = value_type*;
         using const_reference = const value_type&;
-        using size_type = size_t;
+        using size_type = std::size_t;
         using const_pointer = const value_type*;
         using self_referenceL = queue<T, Container>&;
         using self_referenceR = queue<T, Container>&&;
@@ -23,32 +23,45 @@ class queue
 
     public:
         queue();
-        queue(size_type size);
-        queue(size_type size, value_type value);
+        template <typename InputIt>
+        queue(InputIt first, InputIt last);
         queue(self_referenceL rhv);     // copy ctor
         queue(self_referenceR rhv);     // move ctor
         queue(std::initializer_list<T> l);
 
     public:
-        const_self_referenceL operator=(self_referenceL rhv);
+        const_self_referenceL operator=(const_self_referenceL rhv);
         const_self_referenceL operator=(self_referenceR rhv);
+
+        // for printing values
         reference operator[](size_type index);
-        const_reference operator[](size_type index) const;
 
     public:
         reference front();
+        const_reference front() const;
         reference back();
-        size_type size();
-        bool empty();
-        void push(value_type value);
+        const_reference back() const;
+        size_type size() const;
+        bool empty() const;
+        void push(const_reference value);
 
     public:
+        template <typename... Args>
+        void push_range(Args... args);
         template <typename... Args>
         const_self_referenceL emplace(Args... args);
         void pop();
         void swap(self_referenceL other);
+
+    public:
+        bool operator==(const_self_referenceL other) const;
+        bool operator!=(const_self_referenceL other) const;
+        bool operator<(const_self_referenceL other) const;
+        bool operator<=(const_self_referenceL other) const;
+        bool operator>(const_self_referenceL other) const;
+        bool operator>=(const_self_referenceL other) const;
 };
 
-#include "queue.h"
+#include "queue.hpp"
 
 #endif
