@@ -1,9 +1,9 @@
-#ifndef __STACK_IMPLEMENTATION__
-#define __STACK_IMPLEMENTATION__
+#ifndef __STACK_IMP__
+#define __STACK_IMP__
 
 #include <vector>
 #include <initializer_list>
-#include "stack.hpp"
+#include "../headers/stack.h"
 
 // Constructors
 
@@ -45,7 +45,7 @@ stack<T, Container>::stack(std::initializer_list<value_type> l)
 
 // Copy constructor
 template <typename T, typename Container>
-stack<T, Container>::stack(self_referenceL rhv)
+stack<T, Container>::stack(const_self_reference rhv)
 {
     size_type size = rhv.size();
     object.resize(size);
@@ -70,6 +70,13 @@ stack<T, Container>::stack(self_referenceR rhv)
     rhv.clear();
 }
 
+template <typename T, typename Container>
+template <typename InputIt>
+stack<T, Container>::stack(InputIt first, InputIt last)
+{
+    object.insert(object.begin(), first, last);
+}
+
 // Destructor
 template <typename T, typename Container>
 stack<T, Container>::~stack()
@@ -82,7 +89,7 @@ stack<T, Container>::~stack()
 
 // operator = copy
 template <typename T, typename Container>
-stack<T>& stack<T, Container>::operator=(self_referenceL rhv)
+const stack<T>& stack<T, Container>::operator=(const_self_reference rhv)
 {
     if ( this != &rhv )
     {
@@ -93,7 +100,7 @@ stack<T>& stack<T, Container>::operator=(self_referenceL rhv)
 
         for ( int i = 0; i < size; ++i )
         {
-            object[i] = rhv[i];
+            object[i] = rhv.object[i];
         }
     }
 
@@ -102,7 +109,7 @@ stack<T>& stack<T, Container>::operator=(self_referenceL rhv)
 
 // operator = move
 template <typename T, typename Container>
-stack<T>& stack<T, Container>::operator=(self_referenceR rhv)
+const stack<T>& stack<T, Container>::operator=(self_referenceR rhv)
 {
     if ( this != &rhv )
     {
@@ -119,7 +126,13 @@ stack<T>& stack<T, Container>::operator=(self_referenceR rhv)
 }
 
 template <typename T, typename Container>
-T& stack<T, Container>::operator[](const value_type index)
+T& stack<T, Container>::operator[](size_type index)
+{
+    return object[index];
+}
+
+template <typename T, typename Container>
+const T& stack<T, Container>::operator[](size_type index) const
 {
     return object[index];
 }
@@ -127,13 +140,13 @@ T& stack<T, Container>::operator[](const value_type index)
 
 // Methods
 template <typename T, typename Container>
-bool stack<T, Container>::empty()
+bool stack<T, Container>::empty() const
 {
     return !object.size();
 }
 
 template <typename T, typename Container>
-size_t stack<T, Container>::size()
+std::size_t stack<T, Container>::size() const
 {
     return object.size();
 }
@@ -176,5 +189,40 @@ void stack<T, Container>::swap(self_referenceL obj)
     }
 }
 
+template <typename T, typename Container>
+bool stack<T, Container>::operator==(const_self_reference other) const
+{
+    return (object == other.object);
+}
 
-#endif
+template <typename T, typename Container>
+bool stack<T, Container>::operator!=(const_self_reference other) const
+{
+    return (object != other.object);
+}
+
+template <typename T, typename Container>
+bool stack<T, Container>::operator<(const_self_reference other) const
+{
+    return (object < other.object);
+}
+
+template <typename T, typename Container>
+bool stack<T, Container>::operator<=(const_self_reference other) const
+{
+    return (object <= other.object);
+}
+
+template <typename T, typename Container>
+bool stack<T, Container>::operator>(const_self_reference other) const
+{
+    return (object > other.object);
+}
+
+template <typename T, typename Container>
+bool stack<T, Container>::operator>=(const_self_reference other) const
+{
+    return (object >= other.object);
+}
+
+#endif  // __STACK_IMP__
