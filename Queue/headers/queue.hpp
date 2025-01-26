@@ -1,5 +1,5 @@
-#ifndef __QUEUE_HPP__
-#define __QUEUE_HPP__
+#ifndef __Queue_HPP__
+#define __Queue_HPP__
 
 #include "queue.h"
 
@@ -8,18 +8,18 @@
 
 
 template <typename T, typename Container>
-queue<T, Container>::queue() = default;
+Queue<T, Container>::Queue() = default;
 
 template <typename T, typename Container>
 template <typename InputIt>
-queue<T, Container>::queue(InputIt first, InputIt second)
+Queue<T, Container>::Queue(InputIt first, InputIt second)
 {
     object.insert(object.cbegin(), first, second);
 }
 
 // copy ctor
 template <typename T, typename Container>
-queue<T, Container>::queue(self_referenceL rhv)
+Queue<T, Container>::Queue(self_referenceL rhv)
 {
     object.resize(rhv.size());
     object = rhv.object;
@@ -27,7 +27,7 @@ queue<T, Container>::queue(self_referenceL rhv)
 
 // move ctor
 template <typename T, typename Container>
-queue<T, Container>::queue(self_referenceR rhv)
+Queue<T, Container>::Queue(self_referenceR rhv)
 {
     object.resize(rhv.size());
     object = std::move(rhv.object);
@@ -35,7 +35,7 @@ queue<T, Container>::queue(self_referenceR rhv)
 }
 
 template <typename T, typename Container>
-queue<T, Container>::queue(std::initializer_list<T> l)
+Queue<T, Container>::Queue(std::initializer_list<T> l)
 {
     object.resize(l.size());
     int i{};
@@ -48,8 +48,8 @@ queue<T, Container>::queue(std::initializer_list<T> l)
 
 // copy assignment
 template <typename T, typename Container>
-const queue<T, Container>&
-queue<T, Container>::
+const Queue<T, Container>&
+Queue<T, Container>::
 operator=(const_self_referenceL rhv)
 {
     if ( this != &rhv )
@@ -68,8 +68,8 @@ operator=(const_self_referenceL rhv)
 
 // move assignment
 template <typename T, typename Container>
-const queue<T, Container>&
-queue<T, Container>::
+const Queue<T, Container>&
+Queue<T, Container>::
 operator=(self_referenceR rhv)
 {
     if ( this != &rhv )
@@ -85,7 +85,7 @@ operator=(self_referenceR rhv)
 
 
 template <typename T, typename Container>
-T& queue<T, Container>::operator[](size_type index)
+T& Queue<T, Container>::operator[](size_type index)
 {
     return object[index];
 }
@@ -93,7 +93,7 @@ T& queue<T, Container>::operator[](size_type index)
 
 template <typename T, typename Container>
 T&
-queue<T, Container>::
+Queue<T, Container>::
 front()
 {
     if ( !this->empty() )
@@ -105,7 +105,7 @@ front()
 
 template <typename T, typename Container>
 const T&
-queue<T, Container>::
+Queue<T, Container>::
 front() const
 {
     if ( !this->empty() )
@@ -117,7 +117,7 @@ front() const
 
 template <typename T, typename Container>
 T&
-queue<T, Container>::
+Queue<T, Container>::
 back()
 {
     if ( !this->empty() )
@@ -128,7 +128,7 @@ back()
 
 template <typename T, typename Container>
 const T&
-queue<T, Container>::
+Queue<T, Container>::
 back() const
 {
     if ( !this->empty() )
@@ -138,14 +138,14 @@ back() const
 }
 
 template <typename T, typename Container>
-std::size_t queue<T, Container>::size() const
+std::size_t Queue<T, Container>::size() const
 {
     return (static_cast<size_type>(object.size()));
 }
 
 template <typename T, typename Container>
 bool
-queue<T, Container>::
+Queue<T, Container>::
 empty() const
 {
     return !this->size();
@@ -153,7 +153,7 @@ empty() const
 
 template <typename T, typename Container>
 void
-queue<T, Container>::
+Queue<T, Container>::
 push(const_reference value)
 {
     object.push_back(value);
@@ -162,7 +162,7 @@ push(const_reference value)
 template <typename T, typename Container>
 template <typename... Args>
 void
-queue<T, Container>::
+Queue<T, Container>::
 push_range(Args... args)
 {
     ( (object.push_back(args)), ... );
@@ -171,8 +171,8 @@ push_range(Args... args)
 
 template <typename T, typename Container>
 template <typename... Args>
-const queue<T, Container>&
-queue<T, Container>::
+const Queue<T, Container>&
+Queue<T, Container>::
 emplace(Args... args)
 {
     ( (object.push_back(args)), ...);
@@ -181,7 +181,7 @@ emplace(Args... args)
 
 template <typename T, typename Container>
 void
-queue<T, Container>::
+Queue<T, Container>::
 pop()
 {
     object.pop_front();
@@ -189,7 +189,7 @@ pop()
 
 template <typename T, typename Container>
 void
-queue<T, Container>::
+Queue<T, Container>::
 swap(self_referenceL other)
 {
     size_type tSize = this->size();
@@ -216,39 +216,39 @@ swap(self_referenceL other)
 }
 
 template <typename T, typename Container>
-bool queue<T, Container>::operator==(const_self_referenceL other) const
+bool Queue<T, Container>::operator==(const_self_referenceL other) const
 {
     return ( object == other.object );
 }
 
 template <typename T, typename Container>
-bool queue<T, Container>::operator!=(const_self_referenceL other) const
+bool Queue<T, Container>::operator!=(const_self_referenceL other) const
 {
     return ( object != other.object );
 }
 
 template <typename T, typename Container>
-bool queue<T, Container>::operator<(const_self_referenceL other) const
+bool Queue<T, Container>::operator<(const_self_referenceL other) const
 {
     return ( object < other.object );
 }
 
 template <typename T, typename Container>
-bool queue<T, Container>::operator<=(const_self_referenceL other) const
+bool Queue<T, Container>::operator<=(const_self_referenceL other) const
 {
     return ( object <= other.object );
 }
 
 template <typename T, typename Container>
-bool queue<T, Container>::operator>(const_self_referenceL other) const
+bool Queue<T, Container>::operator>(const_self_referenceL other) const
 {
     return ( object > other.object );
 }
 
 template <typename T, typename Container>
-bool queue<T, Container>::operator>=(const_self_referenceL other) const
+bool Queue<T, Container>::operator>=(const_self_referenceL other) const
 {
     return ( object >= other.object );
 }
 
-#endif  // __QUEUE_HPP__
+#endif  // __Queue_HPP__

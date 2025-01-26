@@ -1,11 +1,11 @@
-#ifndef __QUEUE__HEADER__
-#define __QUEUE__HEADER__
+#ifndef __Queue__HEADER__
+#define __Queue__HEADER__
 
 #include <deque>
 #include <initializer_list>
 
 template <typename T, typename Container = std::deque<T>>
-class queue
+class Queue
 {
     private:
         Container object;
@@ -17,17 +17,17 @@ class queue
         using const_reference = const value_type&;
         using size_type = std::size_t;
         using const_pointer = const value_type*;
-        using self_referenceL = queue<T, Container>&;
-        using self_referenceR = queue<T, Container>&&;
-        using const_self_referenceL = const queue<T, Container>&;
+        using self_referenceL = Queue<T, Container>&;
+        using self_referenceR = Queue<T, Container>&&;
+        using const_self_referenceL = const Queue<T, Container>&;
 
     public:
-        queue();
+        Queue();
         template <typename InputIt>
-        queue(InputIt first, InputIt last);
-        queue(self_referenceL rhv);     // copy ctor
-        queue(self_referenceR rhv);     // move ctor
-        queue(std::initializer_list<T> l);
+        Queue(InputIt first, InputIt last);
+        Queue(self_referenceL rhv);     // copy ctor
+        Queue(self_referenceR rhv);     // move ctor
+        Queue(std::initializer_list<T> l);
 
     public:
         const_self_referenceL operator=(const_self_referenceL rhv);

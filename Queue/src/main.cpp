@@ -6,7 +6,7 @@ using namespace std;
 
 
 template <typename T, typename Container>
-void print(queue<T, Container> list)
+void print(Queue<T, Container> list)
 {
     size_t size = list.size();
     for ( int i = 0; i < size; ++i )
@@ -18,19 +18,19 @@ void print(queue<T, Container> list)
 
 int main()
 {
-    cout << "emplace()" << endl;
-    queue<string> qwu;
-    qwu.emplace("Hello,");
-    qwu.emplace("I'm");
-    qwu.emplace("Vahe!");
+    // cout << "emplace()" << endl;
+    // Queue<string> qwu;
+    // qwu.emplace("Hello,");
+    // qwu.emplace("I'm");
+    // qwu.emplace("Vahe!");
 
-    print(qwu);
+    // print(qwu);
 
     cout << endl << "list 1" << endl;
-    queue<int> list = {1, 2, 3};
+    Queue<int> list = {1, 2, 3};
     print(list);
 
-    queue<int> list2 = {5, 8, 7, 55, 4, 1, 3, 11, 23};
+    Queue<int> list2 = {5, 8, 7, 55, 4, 1, 3, 11, 23};
     cout << endl << "list 2" << endl;
     print(list2);
 
